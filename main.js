@@ -68,11 +68,11 @@ function moveCamera() {
 
 window.addEventListener("scroll", () => {
   moveCamera();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  // renderer.setSize(window.innerWidth, window.innerHeight);
 });
 window.addEventListener("resize", () => {
   // rerender canvas
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  // renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
 function animate() {
