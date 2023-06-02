@@ -66,7 +66,10 @@ function moveCamera() {
   // camera.rotation.y = t * -0.0002;
 }
 
-window.addEventListener("scroll", moveCamera);
+window.addEventListener("scroll", () => {
+  moveCamera();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
 window.addEventListener("resize", () => {
   // rerender canvas
   renderer.setSize(window.innerWidth, window.innerHeight);
