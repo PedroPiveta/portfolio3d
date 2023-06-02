@@ -9,16 +9,16 @@ canvas {
 
 * {
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 body {
   padding: 0;
   margin: 0;
-  overflow-x: hidden;
   font-family: 'Nanum Gothic', sans-serif;
 }
 
 main {
-  overflow: auto;
+  overflow-y: auto;
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   min-height: 100vh;
@@ -50,5 +50,14 @@ section {
 
 .teste {
   grid-column: 2 / span 5;
+}
+
+footer {
+  background-color: #fafa;
+  position: absolute;
+  z-index: 99;
+  height: 20%;
+  bottom: 0;
+  width: 100vw;
 }
 
