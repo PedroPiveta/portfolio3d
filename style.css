@@ -1,0 +1,32 @@
+
+canvas {
+  overflow: auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+main {
+  overflow: auto;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  min-height: 100vh;
+  width: 100%;
+  position: absolute;
+  color: white;
+  z-index: 99;
+}
+
+section {
+  height: 100vh;
+  grid-column: 4 / span 5;
+}
+
+.card {
+  background-color: #fafa;
+  padding: 1em;
+}
