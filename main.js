@@ -58,21 +58,21 @@ ground.position.y = -1;
 
 scene.add(ground);
 
-const htmlTexture = new THREE.TextureLoader().load('textures/html.png');
+const htmlTexture = new THREE.TextureLoader().load('/textures/html.png');
 
 const html = new THREE.Mesh(
   new THREE.BoxGeometry(4, 4, 4),
   new THREE.MeshBasicMaterial({ map: htmlTexture })
 );
 
-const cssTexture = new THREE.TextureLoader().load('textures/css.png');
+const cssTexture = new THREE.TextureLoader().load('/textures/css.png');
 
 const css = new THREE.Mesh(
   new THREE.BoxGeometry(4, 4, 4),
   new THREE.MeshBasicMaterial({ map: cssTexture })
 );
 
-const reactJsTexture = new THREE.TextureLoader().load('textures/react.png');
+const reactJsTexture = new THREE.TextureLoader().load('/textures/react.png');
 
 const reactJs = new THREE.Mesh(
   new THREE.BoxGeometry(4, 4, 4),
