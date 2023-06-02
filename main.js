@@ -67,6 +67,10 @@ function moveCamera() {
 }
 
 window.addEventListener("scroll", moveCamera);
+window.addEventListener("resize", () => {
+  // rerender canvas
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
 
 function animate() {
   requestAnimationFrame(animate);
