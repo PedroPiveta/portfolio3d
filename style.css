@@ -53,7 +53,7 @@ section {
 }
 
 footer {
-  background-color: #fafa;
+  background-color: #000;
   position: absolute;
   z-index: 99;
   height: 20%;
