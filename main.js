@@ -52,8 +52,27 @@ Array(300).fill().forEach(addStar);
 
 // helpers
 
-const gridHelper = new THREE.GridHelper(200, 10);
-scene.add(gridHelper);
+// const gridHelper = new THREE.GridHelper(200, 10);
+// scene.add(gridHelper);
+
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(300, 300, 10, 10),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true})
+);
+
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = -1;
+
+scene.add(ground);
+
+const cube = new THREE.Mesh(
+  new THREE.BoxGeometry(4, 4, 4),
+  new THREE.MeshBasicMaterial({ color: 0xffffff })
+);
+
+cube.position.set(8, 10, 0);
+
+scene.add(cube);
 
 // const controls = new OrbitControls(camera, renderer.domElement);
 
@@ -62,6 +81,7 @@ function moveCamera() {
   const t = document.body.getBoundingClientRect().top;
 
   camera.position.z = 10 + window.scrollY / 10.0;
+  cube.position.z  = t * -0.05;
   // camera.position.x = t * -0.0002;
   // camera.rotation.y = t * -0.0002;
 }
@@ -77,6 +97,10 @@ window.addEventListener("resize", () => {
 
 function animate() {
   requestAnimationFrame(animate);
+
+  cube.rotation.x += 0.01;
+  cube.rotation.y += 0.01;
+  cube.rotation.z += 0.01;
 
   // controls.update();
 
