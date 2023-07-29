@@ -3,14 +3,19 @@
 canvas {
   overflow: auto;
   position: fixed;
-  height: 110vh;
-  width: 110vw;
+  height: 100dvh;
+  width: 100dvw;
 }
 
 * {
   box-sizing: border-box;
   overflow-x: hidden;
 }
+
+figure {
+  margin: 0;
+}
+
 body {
   padding: 0;
   margin: 0;
@@ -19,8 +24,9 @@ body {
 
 main {
   overflow-y: auto;
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   min-height: 100vh;
   width: 100%;
   position: absolute;
@@ -30,17 +36,17 @@ main {
 
 .card {
   background-color: rgba(15, 15, 15, .5);
-  margin: 20px auto;
-  /* height: 80%; */
-  padding: 1em;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;  
+  justify-content: space-around;
+  margin-top: 32px;
+  padding: 1em 2em;
 }
 
 section {
   height: 100vh;
-}
-
-.presentation {
-  grid-column: 4 / span 5;
+  width: 80%;
 }
 
 .name {
@@ -48,16 +54,35 @@ section {
   text-transform: uppercase;
 }
 
-.teste {
-  grid-column: 2 / span 5;
+.stack {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2em;
+}
+
+.stack svg {
+  width: 32px;
 }
 
 footer {
   background-color: #000;
   position: absolute;
+  padding: 2em;
   z-index: 99;
-  height: 20%;
   bottom: 0;
   width: 100vw;
 }
 
+.contact svg {
+  width: 32px;  
+}
+
+.github a {
+  font-size: 16px;
+  color: #fff;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: .5em;
+}

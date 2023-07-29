@@ -58,32 +58,6 @@ ground.position.y = -1;
 
 scene.add(ground);
 
-const htmlTexture = new THREE.TextureLoader().load('/textures/html.png');
-
-const html = new THREE.Mesh(
-  new THREE.BoxGeometry(4, 4, 4),
-  new THREE.MeshBasicMaterial({ map: htmlTexture })
-);
-
-const cssTexture = new THREE.TextureLoader().load('/textures/css.png');
-
-const css = new THREE.Mesh(
-  new THREE.BoxGeometry(4, 4, 4),
-  new THREE.MeshBasicMaterial({ map: cssTexture })
-);
-
-const reactJsTexture = new THREE.TextureLoader().load('/textures/react.png');
-
-const reactJs = new THREE.Mesh(
-  new THREE.BoxGeometry(4, 4, 4),
-  new THREE.MeshBasicMaterial({ map: reactJsTexture })
-);
-
-css.position.set(14, 6, -2);
-reactJs.position.set(7, 5, -1);
-html.position.set(8, 11, 0);
-
-scene.add(html, css, reactJs);
 
 // const controls = new OrbitControls(camera, renderer.domElement);
 
@@ -101,17 +75,6 @@ window.addEventListener("scroll", () => {
 function animate() {
   requestAnimationFrame(animate);
 
-  html.rotation.x += 0.01;
-  html.rotation.y += 0.01;
-  html.rotation.z += 0.01;
-
-  css.rotation.x -= 0.01;
-  css.rotation.y -= 0.01;
-  css.rotation.z -= 0.01;
-
-  reactJs.rotation.x -= 0.01;
-  reactJs.rotation.y += 0.01;
-  reactJs.rotation.z -= 0.01;
 
   // controls.update();
 
