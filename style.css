@@ -42,7 +42,7 @@ header {
   align-items: center;
   position: fixed;
   top: 0;
-  justify-content: space-around;
+  justify-content: space-evenly;
   padding-block: .5em;
   margin-inline: auto;
 }
@@ -63,6 +63,8 @@ header {
 }
 
 section {
+  padding-block: 1rem;
+  margin-bottom: 1rem;
   height: 100vh;
   width: 100%;
 }
@@ -89,7 +91,8 @@ section header {
 .about {
   display: flex;
   /* align-items: center; */
-  gap: 2rem;
+  gap: 7rem;
+  flex-wrap: wrap;
   padding: 1rem 2rem;
 }
 
@@ -122,11 +125,16 @@ footer {
   width: 32px;  
 }
 
+.github {
+  display: inline-block;
+}
+
 .github a {
   font-size: 16px;
   color: #fff;
   text-decoration: none;
   display: flex;
   align-items: center;
+  margin-left: 4.5rem;
   gap: .5em;
 }

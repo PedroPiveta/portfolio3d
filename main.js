@@ -49,7 +49,7 @@ Array(300).fill().forEach(addStar);
 // scene.add(gridHelper);
 
 const ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(300, 300, 10, 10),
+  new THREE.PlaneGeometry(400, 400, 10, 10),
   new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true })
 );
 
@@ -73,7 +73,7 @@ window.addEventListener("scroll", () => {
   moveCamera();
 
   if (window.scrollY > 200) {
-    header.style.background = "rgba(15, 15, 15, .5)"
+    // header.style.background = "rgba(15, 15, 15, .5)"
     header.style.width = "100vw"
   } else {
     header.style.background = "#000"
