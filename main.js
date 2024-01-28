@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';  
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import './style.css'
 
 // setup
@@ -26,7 +26,7 @@ pointLight.position.set(0, 0, 0);
 
 const ambientLight = new THREE.AmbientLight(0xffffff);
 
-scene.add( ambientLight);
+scene.add(ambientLight);
 
 function addStar() {
   const geometry = new THREE.SphereGeometry(0.25, 24, 24);
@@ -50,7 +50,7 @@ Array(300).fill().forEach(addStar);
 
 const ground = new THREE.Mesh(
   new THREE.PlaneGeometry(300, 300, 10, 10),
-  new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true})
+  new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true })
 );
 
 ground.rotation.x = -Math.PI / 2;
@@ -61,15 +61,23 @@ scene.add(ground);
 
 // const controls = new OrbitControls(camera, renderer.domElement);
 
-
 function moveCamera() {
   const t = document.body.getBoundingClientRect().top;
 
   camera.position.z = 10 + window.scrollY / 10.0;
 }
 
+const header = document.querySelector('header');
+
 window.addEventListener("scroll", () => {
   moveCamera();
+
+  if (window.scrollY > 200) {
+    header.style.background = "rgba(15, 15, 15, .5)"
+    header.style.width = "100vw"
+  } else {
+    header.style.background = "#000"
+  }
 });
 
 function animate() {

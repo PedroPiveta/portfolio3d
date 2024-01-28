@@ -34,24 +34,68 @@ main {
   z-index: 99;
 }
 
+header {
+  background-color: rgba(15, 15, 15, .5);
+  display: flex;
+  transition: all 250ms ease-in-out;
+  flex-wrap: wrap;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  justify-content: space-around;
+  padding-block: .5em;
+  margin-inline: auto;
+}
+
 .card {
   background-color: rgba(15, 15, 15, .5);
   display: flex;
   flex-wrap: wrap;
   align-items: center;  
   justify-content: space-around;
-  margin-top: 32px;
+  margin-top: 10rem;
+  margin-inline: auto;
   padding: 1em 2em;
+}
+
+.sobre {
+  flex-direction: column;
 }
 
 section {
   height: 100vh;
-  width: 80%;
+  width: 100%;
+}
+
+section .card, section header div{
+  width: 90%;
+}
+
+section header {
+  width: 100vw;
+}
+
+.profilePicture {
+  height: 45px;
+  border-radius: 50%;
 }
 
 .name {
-  font-family: 'Oswald', sans-serif;
-  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.about {
+  display: flex;
+  /* align-items: center; */
+  gap: 2rem;
+  padding: 1rem 2rem;
+}
+
+.about img {
+  height: 600px;
+  border-radius: 1rem;
 }
 
 .stack {
