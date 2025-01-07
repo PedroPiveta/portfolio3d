@@ -43,10 +43,14 @@ header {
   align-items: center;
   position: fixed;
   top: 0;
-  justify-content: space-evenly;
+  justify-content: space-around;
   padding-block: .5em;
-  padding-inline: .5em;
+  padding-inline: 1em;
   margin-inline: auto;
+}
+
+#blog-link {
+  padding-right: 12px;
 }
 
 .card {
@@ -209,6 +213,11 @@ a::after {
   transition: transform 250ms ease-in-out;
 }
 
-.github a:hover::after {
+a:hover::after {
   transform: scaleX(1);
 }
+
+.email {
+  font-size: 12px;
+}
+
