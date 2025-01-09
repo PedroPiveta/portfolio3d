@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import './style.css'
+import { inject } from "@vercel/analytics"
+import { injectSpeedInsights } from '@vercel/speed-insights';
 
 // setup
 
@@ -96,3 +98,6 @@ function animate() {
 }
 
 animate();
+inject();
+injectSpeedInsights();
+
