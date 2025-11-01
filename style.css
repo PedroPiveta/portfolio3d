@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700&family=Oswald:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700&family=Oswald:wght@400;700&display=swap");
 
 canvas {
   overflow: auto;
@@ -19,7 +19,7 @@ figure {
 body {
   padding: 0;
   margin: 0;
-  font-family: 'Nanum Gothic', sans-serif;
+  font-family: "Nanum Gothic", sans-serif;
   scroll-snap-type: y mandatory;
 }
 
@@ -37,7 +37,7 @@ main {
 
 header {
   z-index: 999;
-  background-color: rgba(15, 15, 15, .5);
+  background-color: rgba(15, 15, 15, 0.5);
   display: flex;
   transition: all 250ms ease-in-out;
   flex-wrap: wrap;
@@ -45,7 +45,7 @@ header {
   position: fixed;
   top: 0;
   justify-content: space-around;
-  padding-block: .5em;
+  padding-block: 0.5em;
   padding-inline: 1em;
   margin-inline: auto;
 }
@@ -59,7 +59,7 @@ header {
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  align-items: center;  
+  align-items: center;
   justify-content: space-around;
   margin-top: 10rem;
   margin-inline: auto;
@@ -79,11 +79,12 @@ section {
   scroll-snap-align: start;
   padding-block: 1rem;
   margin-bottom: 1rem;
-  min-height: 100dvh;
+  max-height: 100dvh;
   width: 100%;
 }
 
-section .card, section header div{
+section .card,
+section header div {
   width: 90%;
 }
 
@@ -115,6 +116,90 @@ section header {
   border-radius: 1rem;
 }
 
+.carousel-container {
+  width: 100%;
+  position: relative;
+}
+
+.carousel-track {
+  display: flex;
+  gap: 1.5rem;
+  width: fit-content;
+  animation: scroll 30s linear infinite;
+  will-change: transform;
+  padding: 1rem 0;
+}
+
+.carousel-track.paused {
+  animation-play-state: paused;
+}
+
+.carousel-item {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 2.5rem;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  background-color: rgba(15, 15, 15, 0.8);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 140px;
+  min-height: 140px;
+}
+
+.carousel-item:hover {
+  background-color: rgba(25, 25, 25, 0.9);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-4px);
+}
+
+.carousel-item img {
+  filter: brightness(0.9);
+  transition: filter 0.3s ease, transform 0.3s ease;
+  text-decoration: none;
+  border: none;
+  outline: none;
+  height: 80px;
+  width: auto;
+}
+
+.carousel-item:hover img {
+  filter: brightness(1.1) drop-shadow(0 8px 18px rgba(0, 0, 0, 0.4));
+}
+
+.carousel-item a,
+.carousel-item a::after {
+  text-decoration: none;
+  display: contents;
+}
+
+.carousel-item a::after {
+  content: none;
+  display: none;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes scroll-projects {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
 .stack {
   width: 100%;
   display: flex;
@@ -133,38 +218,216 @@ section header {
 }
 
 .projects-card {
-  min-height: 100dvh;
+  max-height: 100dvh;
   margin-bottom: 150px;
 }
 
-.projects {
+.projects-container {
+  width: 100%;
+  position: relative;
+  cursor: grab;
+  user-select: none;
+}
+
+.projects-container:active {
+  cursor: grabbing;
+}
+
+.projects-track {
   display: flex;
-  flex-direction: column;
-  overflow-y: scroll;
+  gap: 1.5rem;
+  width: fit-content;
+  animation: scroll-projects 60s linear infinite;
+  will-change: transform;
+  padding: 1rem 0;
+  --drag-offset: 0px;
+}
+
+.projects-track.dragging {
+  animation: none;
+  cursor: grabbing;
+}
+
+.projects-track.has-drag {
+  animation: none;
+}
+
+.projects-track.paused {
+  animation-play-state: paused;
 }
 
 .project {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  background-color: rgba(15, 15, 15, 0.8);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  width: 700px;
+  max-width: 90vw;
+  max-height: 400px;
+  position: relative;
+  /* reserve space at the bottom so absolutely-positioned tech icons don't overlap content */
+  padding-bottom: 3rem;
+}
+
+.project:hover {
+  background-color: rgba(25, 25, 25, 0.9);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-4px);
+}
+
+.project-title {
+  margin-bottom: 0.75rem;
+  margin-top: 0;
+  transition: color 0.3s ease;
+  font-size: 1.25rem;
+}
+
+.project:hover .project-title {
+  color: #fff;
 }
 
 .project-desc {
   display: flex;
-  flex-wrap: wrap;
-  /* flex-direction: column; */
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
-  gap: 2em;
+  justify-content: flex-start;
+  gap: 1.5rem;
+  width: 100%;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.project .project-desc > a + p,
+.project .project-desc > p:first-of-type {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  gap: 0.75rem;
+  align-self: center;
 }
 
 .project a {
-  width: 50%;
+  flex-shrink: 0;
+  width: 280px;
+  min-width: 280px;
+  transition: transform 0.3s ease;
+  display: block;
 }
 
-.project img {
+.project .project-desc img {
   width: 100%;
+  height: 100%;
+  min-height: 250px;
+  max-height: 300px;
+  border-radius: 8px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  object-fit: contain;
+  object-position: center;
+  user-select: none;
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+}
+
+.project:hover img {
+  /* use drop-shadow so shadow follows image alpha instead of rectangular box */
+  filter: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Text content wrapper - description paragraph */
+.project .project-desc > p {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.5;
+  margin: 0;
+  font-size: 0.9rem;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  line-clamp: 6;
+  -webkit-box-orient: vertical;
+}
+
+.project-tech {
+  position: absolute;
+  bottom: 0.75rem;
+  right: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  flex-grow: 0;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0.5rem 0.5rem;
+  border-radius: 8px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  height: fit-content;
+  width: fit-content;
+  line-height: 1;
+  margin: 0;
+  z-index: 1;
+}
+
+.project-tech img {
+  height: 24px;
+  width: auto;
+  max-width: 24px;
+  max-height: 24px;
+  flex-shrink: 0;
+  flex-grow: 0;
+  transition: transform 0.3s ease, filter 0.3s ease;
+  filter: brightness(0.8);
+  object-fit: contain;
+  display: block;
+  margin: 0;
+}
+
+/* Media queries for larger screens */
+@media (min-width: 768px) {
+  .project-tech img {
+    height: 28px;
+    max-width: 28px;
+    max-height: 28px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .project-tech img {
+    height: 32px;
+    max-width: 32px;
+    max-height: 32px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .project-tech img {
+    height: 36px;
+    max-width: 36px;
+    max-height: 36px;
+  }
+}
+
+.project-tech img:hover {
+  transform: scale(1.15);
+  filter: brightness(1);
+}
+
+/* For projects without images */
+.project .project-desc:not(:has(img)) {
+  flex-direction: column;
 }
 
 footer {
@@ -183,7 +446,7 @@ footer {
 }
 
 .contact svg {
-  width: 32px;  
+  width: 32px;
 }
 
 .github {
@@ -201,8 +464,8 @@ a {
   position: relative;
 }
 
-a::after {
-  content: '';
+a::after:not(.github-link:hover ::after) {
+  content: "";
   position: absolute;
   width: 100%;
   height: 2px;
