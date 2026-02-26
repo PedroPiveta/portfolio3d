@@ -1,98 +1,140 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import './style.css'
 import { inject } from "@vercel/analytics"
 import { injectSpeedInsights } from '@vercel/speed-insights';
 
-// setup
-
 const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x050507, 0.0035);
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(0, 6, 10);
 
 const renderer = new THREE.WebGLRenderer({
   canvas: document.querySelector('#bg'),
+  antialias: true,
+  alpha: true,
 });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0x050507, 1);
 
-renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(window.innerWidth, window.innerHeight + 100);
-// camera.position.setZ(30);
-camera.position.setY(6);
-// camera.rotateY = 5;
-
-// // objects
-
-// lights
-const pointLight = new THREE.PointLight(0xffffff);
-pointLight.position.set(0, 0, 0);
-
-const ambientLight = new THREE.AmbientLight(0xffffff);
-
+const ambientLight = new THREE.AmbientLight(0x6c63ff, 0.7);
 scene.add(ambientLight);
 
-function addStar() {
-  const geometry = new THREE.SphereGeometry(0.25, 24, 24);
-  const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
-  const star = new THREE.Mesh(geometry, material);
+const pointLight1 = new THREE.PointLight(0x6c63ff, 4, 300);
+pointLight1.position.set(30, 20, 10);
+scene.add(pointLight1);
 
-  const [x, y, z] = Array(3)
-    .fill()
-    .map(() => THREE.MathUtils.randFloatSpread(300));
+const pointLight2 = new THREE.PointLight(0xff6584, 3, 300);
+pointLight2.position.set(-30, -10, -20);
+scene.add(pointLight2);
 
-  star.position.set(x, y, z);
-  scene.add(star);
+const starCount = 400;
+const starGeometry = new THREE.BufferGeometry();
+const positions = new Float32Array(starCount * 3);
+const sizes = new Float32Array(starCount);
+
+for (let i = 0; i < starCount; i++) {
+  positions[i * 3] = (Math.random() - 0.5) * 400;
+  positions[i * 3 + 1] = (Math.random() - 0.5) * 400;
+  positions[i * 3 + 2] = (Math.random() - 0.5) * 400;
+  sizes[i] = Math.random() * 2 + 0.5;
 }
+starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+starGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
-Array(300).fill().forEach(addStar);
+const starMaterial = new THREE.PointsMaterial({
+  color: 0xffffff,
+  size: 1.2,
+  sizeAttenuation: true,
+  transparent: true,
+  opacity: 0.9,
+});
+const stars = new THREE.Points(starGeometry, starMaterial);
+scene.add(stars);
 
-// helpers
-
-// const gridHelper = new THREE.GridHelper(200, 10);
-// scene.add(gridHelper);
-
-const ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(400, 400, 10, 10),
-  new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true })
-);
-
+const groundMaterial = new THREE.MeshBasicMaterial({
+  color: 0x9d96ff,
+  wireframe: true,
+  transparent: true,
+  opacity: 0.28,
+});
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(700, 700, 28, 28), groundMaterial);
 ground.rotation.x = -Math.PI / 2;
-ground.position.y = -1;
-
+ground.position.y = -8;
 scene.add(ground);
 
+// target values — smoothly lerped each frame
+let groundTargetRotX = -Math.PI / 2;
+let groundTargetRotZ = 0;
+let groundTargetY = -8;
+let groundCurrentRotX = -Math.PI / 2;
+let groundCurrentRotZ = 0;
+let groundCurrentY = -8;
 
-// const controls = new OrbitControls(camera, renderer.domElement);
+// how far into the scroll transition (0 → 1)
+let scrollProgress = 0;
 
-function moveCamera() {
-  const t = document.body.getBoundingClientRect().top;
+const maxScroll = () => document.body.scrollHeight - window.innerHeight;
 
-  camera.position.z = 10 + window.scrollY / 10.0;
-}
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
 
 const header = document.querySelector('header');
 
 window.addEventListener("scroll", () => {
-  moveCamera();
+  const t = Math.min(window.scrollY / (maxScroll() * 0.35), 1); // reaches full effect at 35% scroll
+  scrollProgress = t;
 
-  if (window.scrollY > 200) {
-    // header.style.background = "rgba(15, 15, 15, .5)"
-    header.style.width = "100vw"
+  // camera pulls back and sinks slightly
+  camera.position.z = 10 + window.scrollY / 10.0;
+  camera.position.y = 6 - window.scrollY / 80;
+
+  // ground rotates from floor (-90°) toward facing the camera (0°), then tilts a bit more
+  // phase 1 (0→0.6): plane rises up, rotating from floor to ~-20deg (almost flat background)
+  // phase 2 (0.6→1): slight extra tilt + slow Z spin begins
+  const phase1 = Math.min(t / 0.6, 1);
+  const phase2 = Math.max((t - 0.6) / 0.4, 0);
+
+  groundTargetRotX = -Math.PI / 2 + phase1 * (Math.PI / 2 - 0.35);
+  groundTargetRotZ = phase2 * 0.25;
+  groundTargetY = -8 + phase1 * 2;
+
+  if (window.scrollY > 100) {
+    header.style.background = "rgba(5,5,7,0.85)";
   } else {
-    header.style.background = "#000"
+    header.style.background = "rgba(5,5,7,0.65)";
   }
 });
 
+let time = 0;
 function animate() {
   requestAnimationFrame(animate);
+  time += 0.005;
 
+  stars.rotation.y = time * 0.03;
+  stars.rotation.x = Math.sin(time * 0.1) * 0.05;
 
-  // controls.update();
+  pointLight1.position.x = Math.sin(time * 0.7) * 40;
+  pointLight1.position.y = Math.cos(time * 0.5) * 20;
+  pointLight2.position.x = Math.cos(time * 0.4) * 40;
+  pointLight2.position.z = Math.sin(time * 0.6) * 30;
 
-  // camera.position.z += 0.15;
+  // smooth lerp toward targets
+  const lerpSpeed = 0.06;
+  groundCurrentRotX += (groundTargetRotX - groundCurrentRotX) * lerpSpeed;
+  groundCurrentRotZ += (groundTargetRotZ - groundCurrentRotZ) * lerpSpeed;
+  groundCurrentY += (groundTargetY - groundCurrentY) * lerpSpeed;
 
-  // if (camera.position.z > 80) {
-  //   camera.position.z = 0;
-  // }
+  ground.rotation.x = groundCurrentRotX;
+  ground.rotation.z = groundCurrentRotZ + time * 0.04 * scrollProgress;
+  ground.position.y = groundCurrentY;
+
+  // fade opacity in as it becomes a background element
+  groundMaterial.opacity = 0.18 + scrollProgress * 0.22;
 
   renderer.render(scene, camera);
 }
@@ -101,20 +143,13 @@ animate();
 inject();
 injectSpeedInsights();
 
-// Infinite carousel with pause on hover
 const carouselContainer = document.querySelector('.carousel-container');
 const carouselTrack = document.getElementById('carouselTrack');
 if (carouselContainer && carouselTrack) {
-  carouselContainer.addEventListener('mouseenter', () => {
-    carouselTrack.classList.add('paused');
-  });
-
-  carouselContainer.addEventListener('mouseleave', () => {
-    carouselTrack.classList.remove('paused');
-  });
+  carouselContainer.addEventListener('mouseenter', () => carouselTrack.classList.add('paused'));
+  carouselContainer.addEventListener('mouseleave', () => carouselTrack.classList.remove('paused'));
 }
 
-// Projects carousel with pause on hover and drag functionality
 const projectsContainer = document.querySelector('.projects-container');
 const projectsTrack = document.getElementById('projectsTrack');
 if (projectsContainer && projectsTrack) {
@@ -124,58 +159,23 @@ if (projectsContainer && projectsTrack) {
   let isPaused = false;
   let currentOffset = 0;
   let animationFrameId = null;
-  let dragStartTime = 0;
-  let manualScrollSpeed = 0;
+  let useManualAnimation = false;
 
-  // Initialize carousel - let CSS animation start first, then switch to manual after first interaction
-  const initWhenReady = () => {
-    // Wait for content to load, then initialize after a delay to let CSS animation start
-    if (projectsTrack.scrollWidth > 100) {
-      // Don't interfere with CSS animation initially
-      // Only initialize manual animation after first drag
-    } else {
-      setTimeout(initWhenReady, 50);
-    }
-  };
-
-  // Try immediately, then wait for load
-  initWhenReady();
-  window.addEventListener('load', () => {
-    setTimeout(initWhenReady, 100);
-  });
-
-  // Manual animation loop for continuous scrolling
   const animateManual = () => {
     if (isPaused || isDragging) return;
-
     const trackWidth = projectsTrack.scrollWidth / 2;
-    currentOffset -= 0.5; // Adjust speed as needed (0.5px per frame)
-
-    // Handle seamless loop - reset when reaching the end
-    if (currentOffset <= -trackWidth) {
-      currentOffset += trackWidth;
-    }
-    // Also handle if somehow we go too far positive (shouldn't happen but safety)
-    if (currentOffset > 0) {
-      currentOffset -= trackWidth;
-    }
-
+    currentOffset -= 0.5;
+    if (currentOffset <= -trackWidth) currentOffset += trackWidth;
+    if (currentOffset > 0) currentOffset -= trackWidth;
     projectsTrack.style.transform = `translateX(${currentOffset}px)`;
     animationFrameId = requestAnimationFrame(animateManual);
   };
 
-  // Check if we should use CSS animation or manual animation
-  let useManualAnimation = false;
-
-  // Pause on hover
   projectsContainer.addEventListener('mouseenter', () => {
     if (!isDragging) {
       projectsTrack.classList.add('paused');
       isPaused = true;
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
-      }
+      if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
     }
   });
 
@@ -183,41 +183,20 @@ if (projectsContainer && projectsTrack) {
     if (!isDragging) {
       projectsTrack.classList.remove('paused');
       isPaused = false;
-      // Resume animation (manual if we switched, CSS otherwise)
-      if (useManualAnimation && !animationFrameId && !isDragging) {
-        animateManual();
-      }
+      if (useManualAnimation && !animationFrameId && !isDragging) animateManual();
     }
   });
 
-  // Mouse drag handlers
   const handleMouseDown = (e) => {
-    // Cancel manual animation if running
-    if (animationFrameId) {
-      cancelAnimationFrame(animationFrameId);
-      animationFrameId = null;
-    }
-
+    if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
     isDragging = true;
-    projectsTrack.classList.add('dragging');
-    projectsTrack.classList.add('paused');
-    projectsTrack.classList.add('has-drag');
-
-    // Get current scroll position from transform
+    projectsTrack.classList.add('dragging', 'paused', 'has-drag');
     const computedStyle = window.getComputedStyle(projectsTrack);
     const matrix = new DOMMatrixReadOnly(computedStyle.transform);
-    const currentPos = matrix.m41; // translateX value
-
-    // If we have inline transform, use that; otherwise use computed
-    scrollLeft = currentPos || currentOffset;
+    scrollLeft = matrix.m41 || currentOffset;
     currentOffset = scrollLeft;
-
-    // Mark that we'll use manual animation after this interaction
     useManualAnimation = true;
-
-    // Stop CSS animation
     projectsTrack.style.animation = 'none';
-
     startX = e.pageX - projectsContainer.offsetLeft;
     projectsContainer.style.cursor = 'grabbing';
   };
@@ -225,165 +204,78 @@ if (projectsContainer && projectsTrack) {
   const handleMouseMove = (e) => {
     if (!isDragging) return;
     e.preventDefault();
-
     const x = e.pageX - projectsContainer.offsetLeft;
-    const walk = (x - startX) * 2; // Scroll speed multiplier
+    const walk = (x - startX) * 2;
     let newTranslateX = scrollLeft + walk;
-
-    // Handle seamless loop when dragging
     const trackWidth = projectsTrack.scrollWidth / 2;
-
-    // If dragging to the right past 0, wrap to the left
-    if (newTranslateX > 0) {
-      newTranslateX = newTranslateX - trackWidth;
-    }
-    // If dragging to the left past -trackWidth, wrap to the right
-    if (newTranslateX < -trackWidth) {
-      newTranslateX = newTranslateX + trackWidth;
-    }
-
+    if (newTranslateX > 0) newTranslateX -= trackWidth;
+    if (newTranslateX < -trackWidth) newTranslateX += trackWidth;
     currentOffset = newTranslateX;
-
     projectsTrack.style.transform = `translateX(${newTranslateX}px)`;
-    projectsTrack.style.setProperty('--drag-offset', `${newTranslateX}px`);
   };
 
   const handleMouseUp = () => {
-    if (isDragging) {
-      isDragging = false;
-      projectsTrack.classList.remove('dragging');
-      projectsTrack.classList.remove('has-drag');
-      projectsContainer.style.cursor = 'grab';
-
-      // Cancel any existing animation frame
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
-      }
-
-      // Store the final position
-      const finalOffset = currentOffset;
-      projectsTrack.style.transform = `translateX(${finalOffset}px)`;
-      projectsTrack.style.animation = 'none';
-
-      // Normalize position to be within bounds
-      const trackWidth = projectsTrack.scrollWidth / 2;
-      if (currentOffset > 0) {
-        currentOffset = currentOffset - trackWidth;
-      }
-      if (currentOffset < -trackWidth) {
-        currentOffset = currentOffset + trackWidth;
-      }
-      projectsTrack.style.transform = `translateX(${currentOffset}px)`;
-
-      // If not paused, start manual animation from current position
-      if (!isPaused) {
-        animateManual();
-      }
-    }
+    if (!isDragging) return;
+    isDragging = false;
+    projectsTrack.classList.remove('dragging', 'has-drag');
+    projectsContainer.style.cursor = 'grab';
+    if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
+    const trackWidth = projectsTrack.scrollWidth / 2;
+    if (currentOffset > 0) currentOffset -= trackWidth;
+    if (currentOffset < -trackWidth) currentOffset += trackWidth;
+    projectsTrack.style.transform = `translateX(${currentOffset}px)`;
+    if (!isPaused) animateManual();
   };
 
-  // Touch drag handlers
   const handleTouchStart = (e) => {
-    if (animationFrameId) {
-      cancelAnimationFrame(animationFrameId);
-      animationFrameId = null;
-    }
-
+    if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
     isDragging = true;
-    projectsTrack.classList.add('dragging');
-    projectsTrack.classList.add('paused');
-    projectsTrack.classList.add('has-drag');
-
+    projectsTrack.classList.add('dragging', 'paused', 'has-drag');
     const computedStyle = window.getComputedStyle(projectsTrack);
     const matrix = new DOMMatrixReadOnly(computedStyle.transform);
-    const currentPos = matrix.m41;
-
-    scrollLeft = currentPos || currentOffset;
+    scrollLeft = matrix.m41 || currentOffset;
     currentOffset = scrollLeft;
-
-    // Mark that we'll use manual animation after this interaction
     useManualAnimation = true;
-
     projectsTrack.style.animation = 'none';
-
     startX = e.touches[0].pageX - projectsContainer.offsetLeft;
   };
 
   const handleTouchMove = (e) => {
     if (!isDragging) return;
     e.preventDefault();
-
     const x = e.touches[0].pageX - projectsContainer.offsetLeft;
     const walk = (x - startX) * 2;
     let newTranslateX = scrollLeft + walk;
-
-    // Handle seamless loop when dragging
     const trackWidth = projectsTrack.scrollWidth / 2;
-
-    // If dragging to the right past 0, wrap to the left
-    if (newTranslateX > 0) {
-      newTranslateX = newTranslateX - trackWidth;
-    }
-    // If dragging to the left past -trackWidth, wrap to the right
-    if (newTranslateX < -trackWidth) {
-      newTranslateX = newTranslateX + trackWidth;
-    }
-
+    if (newTranslateX > 0) newTranslateX -= trackWidth;
+    if (newTranslateX < -trackWidth) newTranslateX += trackWidth;
     currentOffset = newTranslateX;
-
     projectsTrack.style.transform = `translateX(${newTranslateX}px)`;
-    projectsTrack.style.setProperty('--drag-offset', `${newTranslateX}px`);
   };
 
   const handleTouchEnd = () => {
-    if (isDragging) {
-      isDragging = false;
-      projectsTrack.classList.remove('dragging');
-      projectsTrack.classList.remove('has-drag');
-
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
-      }
-
-      // Normalize position to be within bounds
-      const trackWidth = projectsTrack.scrollWidth / 2;
-      if (currentOffset > 0) {
-        currentOffset = currentOffset - trackWidth;
-      }
-      if (currentOffset < -trackWidth) {
-        currentOffset = currentOffset + trackWidth;
-      }
-      projectsTrack.style.transform = `translateX(${currentOffset}px)`;
-      projectsTrack.style.animation = 'none';
-
-      if (!isPaused) {
-        animateManual();
-      }
-    }
+    if (!isDragging) return;
+    isDragging = false;
+    projectsTrack.classList.remove('dragging', 'has-drag');
+    if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
+    const trackWidth = projectsTrack.scrollWidth / 2;
+    if (currentOffset > 0) currentOffset -= trackWidth;
+    if (currentOffset < -trackWidth) currentOffset += trackWidth;
+    projectsTrack.style.transform = `translateX(${currentOffset}px)`;
+    projectsTrack.style.animation = 'none';
+    if (!isPaused) animateManual();
   };
 
-  // Prevent image dragging
   const projectImages = projectsContainer.querySelectorAll('.project img');
   projectImages.forEach(img => {
-    img.addEventListener('dragstart', (e) => {
-      e.preventDefault();
-      return false;
-    });
-    img.addEventListener('mousedown', (e) => {
-      e.preventDefault();
-      return false;
-    });
+    img.addEventListener('dragstart', (e) => { e.preventDefault(); return false; });
+    img.addEventListener('mousedown', (e) => { e.preventDefault(); return false; });
   });
 
-  // Add event listeners
   projectsContainer.addEventListener('mousedown', handleMouseDown);
   document.addEventListener('mousemove', handleMouseMove);
   document.addEventListener('mouseup', handleMouseUp);
-
   projectsContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
   projectsContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
   projectsContainer.addEventListener('touchend', handleTouchEnd);
 }
-
